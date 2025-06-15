@@ -1,14 +1,20 @@
 import argparse
+from utils.log_parser import LogParser
 import logging
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(levelname)s: %(message)s')
+
 class LogAnalyzer():
     def __init__(self, log_data, warning_threshold=5, error_threshold=10):
             self.log_data = log_data
             self.warning_threshold = warning_threshold
             self.error_threshold = error_threshold
             self.jobs = {}
+
+    def parse_log_file(self):
+        self.jobs = LogParser.parse(self.log_data)
 
     def analyze(self):
         print("\n Job Duration Report:\n")
