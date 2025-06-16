@@ -40,7 +40,7 @@ log_analyzer/
 * Install testing dependencies:
 
 ```bash
-pip install pytest
+pip install requirements.txt
 ```
 
 ---
