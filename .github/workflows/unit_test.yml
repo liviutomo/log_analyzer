@@ -8,10 +8,14 @@ on:
       - 'feat/**'
       - 'test/**'
       - 'chore/**'
+    paths:
+      - '**.py'
   pull_request:
     branches:
       - main
       - develop
+    paths:
+      - '**.py'
 
 jobs:
   test:
