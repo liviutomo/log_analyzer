@@ -1,10 +1,9 @@
 import argparse
+import os
+import pathlib
+
 from utils.log_parser import LogParser
 import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s: %(message)s')
 
 class LogAnalyzer():
     def __init__(self, log_data, warning_threshold=5, error_threshold=10):
@@ -32,12 +31,11 @@ class LogAnalyzer():
                 else:
                     level = logging.INFO
                     status = "OK"
-
                 logging.log(level, f"{status} |"
-                                   f" PID: {pid} |"
-                                   f" Duration: {str(duration)} |"
-                                   f" Start: {events['START'].time()} |"
-                                   f" End: {events['END'].time()}")
+                                f" PID: {pid} |"
+                                f" Duration: {str(duration)} |"
+                                f" Start: {events['START'].time()} |"
+                                f" End: {events['END'].time()}")
             else:
                 logging.warning(f"Incomplete data for PID {pid} - missing START or END")
 
@@ -56,7 +54,30 @@ if __name__ == "__main__":
     parser.add_argument("--log_data", help="Log file that will be analyzed", required=True)
     parser.add_argument("--warning", help="Warning threshold in minutes", type=int, default=5)
     parser.add_argument("--error", help="Error threshold in minutes", type=int, default=10)
+    parser.add_argument("--output_path", help="Output path where the filter logs are saved",
+                        default=os.path.join(os.getcwd(), "output"))
     args = parser.parse_args()
+
+    # Ensure output directory exists
+    output_path = pathlib.Path(args.output_path)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # File logging path
+    log_file_path = output_path / "filtered_log.log"
+
+    # Clear any existing handlers
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    # Setup dual logging: file + console
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+        handlers=[
+            logging.FileHandler(str(log_file_path), mode="w"),
+            logging.StreamHandler()
+        ]
+    )
 
     analyzer = LogAnalyzer(args.log_data, args.warning, args.error)
     analyzer.start()
