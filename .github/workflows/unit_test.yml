@@ -1,0 +1,42 @@
+name: Run Unit Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+      - 'test/**'
+      - 'chore/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run tests and capture output
+        id: run_tests
+        run: |
+          pytest tests/ --tb=short -v | tee result.log
+
+      - name: Upload summary to GitHub Actions
+        run: |
+          echo "### 🧪 Pytest Summary" >> $GITHUB_STEP_SUMMARY
+          tail -n 20 result.log >> $GITHUB_STEP_SUMMARY
